@@ -72,14 +72,17 @@ main{padding:34px 34px 70px;min-width:0}
 .shorts-h{margin-top:56px}
 
 /* ---------- Cartes ---------- */
-.card{position:relative;display:block;cursor:pointer;padding-bottom:22px;user-select:none}
-.card>input{position:absolute;opacity:0;pointer-events:none}
-.cover{position:relative;aspect-ratio:1/1.9;border-radius:10px;border:2px solid var(--ink);overflow:hidden;background:#ddd;box-shadow:4px 4px 0 rgba(31,27,46,.9);transition:transform .25s cubic-bezier(.2,1.4,.4,1),box-shadow .25s}
+.card{position:relative;display:block;padding-bottom:22px;user-select:none}
+.mw{display:block;cursor:pointer}
+.mw>input{position:absolute;opacity:0;pointer-events:none}
+.cover{position:relative;aspect-ratio:1/1.9;border-radius:10px;border:2px solid var(--ink);overflow:hidden;background:#ddd;box-shadow:4px 4px 0 rgba(31,27,46,.9);transition:box-shadow .25s}
 .cover img{width:100%;height:100%;object-fit:cover;display:block}
 .ph{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:14px;color:#fff;background:linear-gradient(160deg,hsl(var(--h) 65% 48%),hsl(calc(var(--h) + 40) 60% 22%))}
 .ph span{font:800 2.6rem/1 var(--f);opacity:.35;letter-spacing:-.04em}
 .ph b{font-size:1.02rem;line-height:1.2;text-shadow:0 2px 0 rgba(0,0,0,.25)}
-.card:hover .cover{transform:translate(-3px,-5px) rotate(-1.2deg);box-shadow:8px 10px 0 var(--ink)}
+.mv{transition:transform .25s cubic-bezier(.2,1.4,.4,1)}
+.mw:hover .mv{transform:translate(-3px,-5px) rotate(-1.2deg)}
+.mw:hover .cover{box-shadow:8px 10px 0 var(--ink)}
 .card:has(input:focus-visible) .cover{outline:3px solid var(--teal);outline-offset:3px}
 .sticker{position:absolute;right:-8px;top:-8px;width:54px;height:54px;border-radius:50%;background:var(--ok);border:2px solid var(--ink);display:grid;place-items:center;transform:scale(0) rotate(-40deg);transition:transform .4s cubic-bezier(.2,1.8,.4,1);z-index:3;box-shadow:2px 2px 0 var(--ink)}
 .sticker svg{width:28px;height:28px;fill:none;stroke:#fff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
@@ -116,6 +119,16 @@ dialog::backdrop{background:rgba(31,27,46,.55);backdrop-filter:blur(2px)}
 .msg{min-height:1.3em;font-size:.9rem;font-weight:600}.msg.ok{color:var(--ok)}.msg.err{color:var(--accent)}
 .steps{display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.8rem;color:var(--muted)}
 .steps div{background:#fff;border:2px solid var(--line);border-radius:12px;padding:10px 12px;line-height:1.4}.steps b{color:var(--ink);display:block;margin-bottom:2px}
+
+/* ---------- Possession ---------- */
+.own{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:2px dashed var(--ink);border-radius:99px;background:transparent;font:700 .78rem var(--f);color:var(--ink);cursor:pointer;white-space:nowrap;transition:transform .12s,background .15s}
+.own:hover{background:var(--yellow);transform:translateY(-2px) rotate(-1.5deg)}
+.own[aria-pressed=true]{border-style:solid;background:var(--teal);color:#fff;box-shadow:2px 2px 0 var(--ink)}
+.own[aria-pressed=true]:hover{background:#17a190}
+.own:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+.card .own{margin-top:10px}
+.kpi.wide{grid-column:1/-1}
+.card.owned .mw:not(:hover) .cover{box-shadow:4px 4px 0 var(--teal),4px 4px 0 2px var(--ink)}
 [hidden]{display:none!important}
 
 @media(max-width:980px){
@@ -141,7 +154,8 @@ dialog::backdrop{background:rgba(31,27,46,.55);backdrop-filter:blur(2px)}
     <svg width="190" height="190" viewBox="0 0 190 190" aria-hidden="true"><circle class="bg" cx="95" cy="95" r="80"/><circle class="fg" id="fg" cx="95" cy="95" r="80" stroke-dasharray="502.65" stroke-dashoffset="502.65"/></svg>
     <div class="c"><b id="pct">0%</b><span id="cnt">0 / 0</span></div>
   </div>
-  <div class="two"><div class="kpi"><b id="origStat">0/0</b><small>Série originale</small></div><div class="kpi"><b id="shortStat">0/0</b><small>Short Adventures</small></div></div>
+  <div class="two"><div class="kpi"><b id="origStat">0/0</b><small>Série originale</small></div><div class="kpi"><b id="shortStat">0/0</b><small>Short Adventures</small></div>
+    <div class="kpi wide"><b id="ownStat">0/0</b><small>aventures dans ma collection</small></div></div>
   <div class="search"><input id="q" type="search" placeholder="Rechercher une aventure…" aria-label="Rechercher une aventure" autocomplete="off"></div>
   <div class="filters" id="chips">
     <button class="f" data-f="all" aria-pressed="true">Toutes <em data-c="all"></em></button>
@@ -149,6 +163,8 @@ dialog::backdrop{background:rgba(31,27,46,.55);backdrop-filter:blur(2px)}
     <button class="f" data-f="done" aria-pressed="false">Terminées <em data-c="done"></em></button>
     <button class="f" data-f="orig" aria-pressed="false">Série originale <em data-c="orig"></em></button>
     <button class="f" data-f="short" aria-pressed="false">Short Adventures <em data-c="short"></em></button>
+    <button class="f" data-f="owned" aria-pressed="false">Que je possède <em data-c="owned"></em></button>
+    <button class="f" data-f="missing" aria-pressed="false">Que je n’ai pas <em data-c="missing"></em></button>
   </div>
   <div class="sidebtns"><button class="btn" id="codeBtn" title="Sauvegarder ou retrouver ma progression avec un code court">🔑 Mon code</button><button class="btn ghost" id="reset" title="Effacer toute la progression">Réinitialiser</button></div>
   <p class="legend">Clique une boîte pour la cocher.<br>Sauvegarde automatique dans ce navigateur.</p>
@@ -171,7 +187,7 @@ dialog::backdrop{background:rgba(31,27,46,.55);backdrop-filter:blur(2px)}
 
 <dialog id="codeDlg">
   <div class="dh"><button class="dx" id="dx" aria-label="Fermer">✕</button><h3>🔑 Mon code de progression</h3>
-  <p>Ton code garde toutes tes coches. Copie-le, et colle-le sur un autre ordinateur ou navigateur pour tout retrouver.</p></div>
+  <p>Ton code garde toutes tes coches et les aventures que tu possèdes. Copie-le, et colle-le sur un autre ordinateur ou navigateur pour tout retrouver.</p></div>
   <div class="db">
     <label for="myCode">Mon code</label>
     <div class="ticket"><input id="myCode" readonly spellcheck="false"><button class="btn" id="copyCode" type="button">Copier</button></div>
@@ -231,7 +247,7 @@ const PH_HUES=[12,255,174,335,215,40,145,5,235,325,190,270,20,170,345];
 const ALL=[];
 BOXES.forEach(b=>b.adv.forEach(([t,l],i)=>ALL.push({id:`o-${b.n}-${i+1}`, type:'orig', title:t, level:l||0, box:b, boxLabel:`Unlock! ${b.n} · ${b.name}`, hue:PH_HUES[(b.n-1)%15]})));
 SHORTS.forEach(s=>ALL.push({id:`s-${s.n}`, type:'short', title:s.t, level:s.l||0, box:null, boxLabel:`Short Adventure ${s.n}`, hue:270}));
-ALL.forEach((a,i)=>{ a.num=String(i+1).padStart(3,'0'); });
+ALL.forEach((a,i)=>{ a.num=String(i+1).padStart(3,'0'); a.unit=a.id; });
 
 /* =====================================================================
    SAUVEGARDE AUTOMATIQUE (localStorage)
@@ -247,6 +263,11 @@ function save(){
   catch(e){ storageOK=false; document.getElementById('warn').style.display='block'; }
 }
 state=load();
+const OWN=ALL.map(a=>a.id);   // possession par aventure (certaines sont vendues séparément)
+let owned={};
+function loadOwn(){ try{ const o=JSON.parse(localStorage.getItem(OKEY)||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
+function saveOwn(){ try{ localStorage.setItem(OKEY,JSON.stringify(owned)); }catch(e){ document.getElementById('warn').style.display='block'; } }
+owned=loadOwn();
 try{ localStorage.setItem(KEY+'-test','1'); localStorage.removeItem(KEY+'-test'); }catch(e){ storageOK=false; }
 if(!storageOK) document.getElementById('warn').style.display='block';
 
@@ -258,14 +279,14 @@ const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
 const CHECK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
+const ownBtn=u=>`<button type="button" class="own" data-own="${u}" aria-pressed="false"></button>`;
 function cardHTML(a){
   const dots=[1,2,3].map(i=>`<i class="${i<=a.level?'on':''}"></i>`).join('');
   const lv=a.level?`<span class="dots" title="Niveau ${a.level} sur 3" aria-label="Niveau ${a.level} sur 3">${dots}</span>`:'';
-  return `<label class="card" data-id="${a.id}">
-    <input type="checkbox" aria-label="Aventure terminée : ${esc(a.title)}">
-    <span class="sticker">${CHECK}</span>
-    <div class="cover"><div class="ph" style="--h:${a.hue}"><span>${a.num}</span><b>${esc(a.title)}</b></div><img class="photo" alt="" hidden draggable="false"></div>
-    <div class="info"><b>${a.title}</b><div>${lv}<span title="Identifiant (nom de l’image : ${a.num}.jpg)">#${a.num}</span></div></div></label>`;
+  return `<div class="card" data-id="${a.id}">
+    <label class="mw"><input type="checkbox" aria-label="Aventure terminée : ${esc(a.title)}"><div class="mv"><span class="sticker">${CHECK}</span>
+    <div class="cover"><div class="ph" style="--h:${a.hue}"><span>${a.num}</span><b>${esc(a.title)}</b></div><img class="photo" alt="" hidden draggable="false"></div></div></label>
+    <div class="info"><b>${a.title}</b><div>${lv}<span title="Identifiant (nom de l’image : ${a.num}.jpg)">#${a.num}</span></div>${ownBtn(a.unit)}</div></div>`;
 }
 
 const cards={};
@@ -317,9 +338,10 @@ function paintCard(a){
   a.el.classList.toggle('done',d);
   a.el.querySelector('input').checked=d;
 }
+const isOwned=a=>!!owned[a.unit];
 function counts(){
-  const c={all:ALL.length,todo:0,done:0,orig:0,short:0,oDone:0,sDone:0};
-  ALL.forEach(a=>{ const d=isDone(a); d?c.done++:c.todo++; if(a.type==='orig'){c.orig++; if(d)c.oDone++;} else {c.short++; if(d)c.sDone++;} });
+  const c={all:ALL.length,todo:0,done:0,orig:0,short:0,oDone:0,sDone:0,owned:0,missing:0};
+  ALL.forEach(a=>{ isOwned(a)?c.owned++:c.missing++; const d=isDone(a); d?c.done++:c.todo++; if(a.type==='orig'){c.orig++; if(d)c.oDone++;} else {c.short++; if(d)c.sDone++;} });
   return c;
 }
 function updateStats(){
@@ -328,6 +350,9 @@ function updateStats(){
   $('#pct').textContent=pct+'%'; $('#cnt').textContent=`${c.done} / ${c.all}`;
   $('#origStat').textContent=`${c.oDone}/${c.orig}`; $('#shortStat').textContent=`${c.sDone}/${c.short}`;
   $('#shortCount').textContent=`${c.sDone} / ${c.short} terminées`;
+  $('#ownStat').textContent=`${OWN.filter(u=>owned[u]).length}/${OWN.length}`;
+  document.querySelectorAll('.own').forEach(b=>{ const on=!!owned[b.dataset.own]; b.setAttribute('aria-pressed',on); b.textContent=on?'✓ Je l’ai':'+ Je l’ai'; b.title=on?'Dans ma collection (cliquer pour retirer)':'Marquer comme possédée'; });
+  ALL.forEach(a=>a.el.classList.toggle('owned',isOwned(a)));
   document.querySelectorAll('[data-c]').forEach(e=>e.textContent=c[e.dataset.c]);
   document.querySelectorAll('#orig .shelf').forEach(sh=>{
     const items=ALL.filter(a=>a.box&&a.box.n==sh.dataset.box);
@@ -338,6 +363,8 @@ function updateStats(){
 function matches(a){
   if(filter==='todo'&&isDone(a)) return false;
   if(filter==='done'&&!isDone(a)) return false;
+  if(filter==='owned'&&!isOwned(a)) return false;
+  if(filter==='missing'&&isOwned(a)) return false;
   if(filter==='orig'&&a.type!=='orig') return false;
   if(filter==='short'&&a.type!=='short') return false;
   if(query){ const hay=norm(a.title+' '+a.boxLabel); if(!hay.includes(query)) return false; }
@@ -362,6 +389,13 @@ document.addEventListener('change',e=>{
   if(!matches(a)){ el.classList.add('fade'); setTimeout(applyFilters,300); }
 });
 
+document.addEventListener('click',e=>{
+  const b=e.target.closest&&e.target.closest('.own'); if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  const u=b.dataset.own; if(owned[u]) delete owned[u]; else owned[u]=1;
+  saveOwn(); updateStats();
+  if(filter==='owned'||filter==='missing') applyFilters();
+},true);
 $('#q').addEventListener('input',e=>{ query=norm(e.target.value.trim()); applyFilters(); });
 $('#chips').addEventListener('click',e=>{
   const b=e.target.closest('.f'); if(!b) return;
@@ -370,24 +404,27 @@ $('#chips').addEventListener('click',e=>{
   applyFilters();
 });
 $('#reset').addEventListener('click',()=>{
-  const n=Object.keys(state).length;
-  if(!n){ alert('Aucune progression à réinitialiser.'); return; }
-  if(confirm(`Réinitialiser toute la progression ?\n\nLes ${n} aventure(s) cochée(s) seront remises à « À faire ». Cette action est définitive.`)){
-    state={}; save(); ALL.forEach(paintCard); updateStats(); applyFilters();
+  const n=Object.keys(state).length, m=Object.keys(owned).length;
+  if(!n&&!m){ alert('Aucune progression à réinitialiser.'); return; }
+  if(confirm(`Réinitialiser toute la progression ?\n\nLes ${n} aventure(s) cochée(s) seront remises à « À faire » et les ${m} aventure(s) possédée(s) seront décochées. Cette action est définitive.`)){
+    state={}; owned={}; save(); saveOwn(); ALL.forEach(paintCard); updateStats(); applyFilters();
   }
 });
 
 /* =====================================================================
    CODE DE PROGRESSION (export / import)
-   59 bits (1 par aventure, dans l'ordre des numéros) -> nombre écrit en base 62 + 1 caractère de contrôle (11 caractères max)
-   Les futures aventures s'ajoutent à la fin : les anciens codes restent valides.
+   bits 0-58  : aventures terminées (1 par aventure, dans l'ordre des numéros)
+   bits 59-117 : aventures possédées (même ordre que les aventures terminées)
+   -> nombre écrit en base 62 + 1 caractère de contrôle (21 caractères max).
+   Les anciens codes (sans possession) restent valides.
    ===================================================================== */
 const AL='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';   // 62 caractères (sensible à la casse)
-const CHK=59n;
+const CHK=59n, NA=59;   // NA = nombre d'aventures (début des bits de possession)
 function chkOf(n){ return AL[Number(n%CHK)]; }
 function encodeProgress(){
   // l'aventure n°1 = bit de poids faible : les dernières aventures non faites n'allongent pas le code
   let n=0n; ALL.forEach((a,i)=>{ if(state[a.id]) n|=1n<<BigInt(i); });
+  OWN.forEach((u,i)=>{ if(owned[u]) n|=1n<<BigInt(NA+i); });
   const c=chkOf(n); let t='';
   if(n===0n) t='0'; while(n>0n){ t=AL[Number(n%62n)]+t; n/=62n; }
   return t+c;   // caractère de contrôle en dernier
@@ -397,7 +434,8 @@ function decodeProgress(raw){
   if(t.length<2||[...t].some(ch=>AL.indexOf(ch)<0)) return null;
   let n=0n; for(const ch of t.slice(0,-1)) n=n*62n+BigInt(AL.indexOf(ch));
   if(chkOf(n)!==t[t.length-1]) return null;
-  return ALL.map((a,i)=>Number((n>>BigInt(i))&1n));
+  const bit=i=>Number((n>>BigInt(i))&1n);
+  return {done:ALL.map((a,i)=>bit(i)), own:OWN.map((u,i)=>bit(NA+i)), hasOwn:(n>>BigInt(NA))>0n};
 }
 const dlg=$('#codeDlg'), msg=$('#codeMsg');
 const say=(t,c)=>{ msg.textContent=t; msg.className='msg '+c; };
@@ -409,20 +447,21 @@ $('#copyCode').addEventListener('click',async()=>{
   say('Code copié ✓','ok');
 });
 $('#importCode').addEventListener('click',()=>{
-  const bits=decodeProgress($('#inCode').value);
-  if(!bits){ say('Code invalide : vérifie qu’il est complet et bien recopié.','err'); return; }
-  const n=bits.slice(0,ALL.length).filter(Boolean).length;
-  if(Object.keys(state).length && !confirm(`Remplacer ta progression actuelle par celle du code (${n} aventure(s) terminée(s)) ?`)) return;
-  state={}; ALL.forEach((a,i)=>{ if(bits[i]) state[a.id]=1; });
+  const dec=decodeProgress($('#inCode').value);
+  if(!dec){ say('Code invalide : vérifie qu’il est complet et bien recopié.','err'); return; }
+  const n=dec.done.filter(Boolean).length, m=dec.own.filter(Boolean).length;
+  if((Object.keys(state).length||Object.keys(owned).length) && !confirm(`Remplacer ta progression actuelle par celle du code (${n} aventure(s) terminée(s)${dec.hasOwn?`, ${m} aventure(s) possédée(s)`:''}) ?`)) return;
+  state={}; ALL.forEach((a,i)=>{ if(dec.done[i]) state[a.id]=1; });
+  if(dec.hasOwn){ owned={}; OWN.forEach((u,i)=>{ if(dec.own[i]) owned[u]=1; }); saveOwn(); }   // ancien code sans possession : on garde la collection actuelle
   save(); ALL.forEach(paintCard); updateStats(); applyFilters();
   $('#myCode').value=encodeProgress();
-  say(`Progression importée : ${n} aventure(s) terminée(s) ✓`,'ok');
+  say(`Progression importée : ${n} aventure(s) terminée(s)${dec.hasOwn?`, ${m} aventure(s) possédée(s)`:''} ✓`,'ok');
 });
 $('#inCode').addEventListener('keydown',e=>{ if(e.key==='Enter') $('#importCode').click(); });
 dlg.addEventListener('click',e=>{ if(e.target===dlg) dlg.close(); });
 
 // synchronisation si le fichier est ouvert dans un autre onglet
-window.addEventListener('storage',e=>{ if(e.key===KEY){ state=load(); ALL.forEach(paintCard); updateStats(); applyFilters(); } });
+window.addEventListener('storage',e=>{ if(e.key===OKEY){ owned=loadOwn(); updateStats(); applyFilters(); } if(e.key===KEY){ state=load(); ALL.forEach(paintCard); updateStats(); applyFilters(); } });
 
 ALL.forEach(paintCard); updateStats(); applyFilters();
 </script>
