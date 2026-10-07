@@ -45,6 +45,7 @@ aside::-webkit-scrollbar{display:none}
 .sidebtns{display:flex;gap:8px}
 .btn{flex:1;padding:11px 12px;border:2px solid var(--ink);border-radius:12px;background:var(--yellow);box-shadow:3px 3px 0 var(--ink);font:700 .92rem var(--f);color:var(--ink);cursor:pointer;transition:transform .12s,box-shadow .12s}
 .btn:hover{transform:translate(-1px,-2px);box-shadow:4px 5px 0 var(--ink)}.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.warnbtn{flex:0 0 auto;padding:7px 14px;font-size:.85rem}
 .btn.ghost{flex:0 0 auto;background:var(--card);padding:11px 14px;font-size:.85rem}
 .btn.ghost:hover{background:#ffe3dc}
 .btn:focus-visible,.f:focus-visible,.jump a:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
@@ -52,7 +53,7 @@ aside::-webkit-scrollbar{display:none}
 
 /* ---------- Contenu ---------- */
 main{padding:34px 34px 70px;min-width:0}
-#warn{display:none;margin:0 0 20px;padding:10px 14px;border-radius:12px;background:#fff0c9;border:2px solid var(--ink);font-size:.9rem;font-weight:600}
+#warn{display:none;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 20px;padding:10px 14px;border-radius:12px;background:#fff0c9;border:2px solid var(--ink);font-size:.9rem;font-weight:600}
 .top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:8px;flex-wrap:wrap}
 .top h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;line-height:1}
 .top p{color:var(--muted);max-width:42ch}
@@ -171,7 +172,7 @@ dialog::backdrop{background:rgba(31,27,46,.55);backdrop-filter:blur(2px)}
 </aside>
 
 <main>
-  <div id="warn">⚠️ Ce navigateur bloque la sauvegarde locale : la progression sera perdue à la fermeture de la page.</div>
+  <div id="warn"><span>⚠️ Ce navigateur ne peut pas sauvegarder ta progression : elle sera perdue à la fermeture de la page. Pense à copier <b>ton code</b> pour la retrouver plus tard.</span> <button type="button" class="btn warnbtn" id="warnCode">🔑 Voir mon code</button></div>
   <div class="top"><h2>Toutes mes<br>aventures</h2><p>Une étagère par boîte. Colle un sticker vert sur chaque scénario terminé.</p></div>
   <nav class="jump" id="jump" aria-label="Aller à une boîte"></nav>
 
@@ -260,16 +261,16 @@ function load(){
 }
 function save(){
   try{ localStorage.setItem(KEY,JSON.stringify(state)); }
-  catch(e){ storageOK=false; document.getElementById('warn').style.display='block'; }
+  catch(e){ storageOK=false; document.getElementById('warn').style.display='flex'; }
 }
 state=load();
 const OWN=ALL.map(a=>a.id);   // possession par aventure (certaines sont vendues séparément)
 let owned={};
 function loadOwn(){ try{ const o=JSON.parse(localStorage.getItem(OKEY)||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
-function saveOwn(){ try{ localStorage.setItem(OKEY,JSON.stringify(owned)); }catch(e){ document.getElementById('warn').style.display='block'; } }
+function saveOwn(){ try{ localStorage.setItem(OKEY,JSON.stringify(owned)); }catch(e){ document.getElementById('warn').style.display='flex'; } }
 owned=loadOwn();
 try{ localStorage.setItem(KEY+'-test','1'); localStorage.removeItem(KEY+'-test'); }catch(e){ storageOK=false; }
-if(!storageOK) document.getElementById('warn').style.display='block';
+if(!storageOK) document.getElementById('warn').style.display='flex';
 
 /* =====================================================================
    RENDU
@@ -440,6 +441,7 @@ function decodeProgress(raw){
 const dlg=$('#codeDlg'), msg=$('#codeMsg');
 const say=(t,c)=>{ msg.textContent=t; msg.className='msg '+c; };
 $('#codeBtn').addEventListener('click',()=>{ $('#myCode').value=encodeProgress(); $('#inCode').value=''; say('',''); dlg.showModal(); });
+$('#warnCode').addEventListener('click',()=>$('#codeBtn').click());
 $('#dx').addEventListener('click',()=>dlg.close());
 $('#copyCode').addEventListener('click',async()=>{
   const v=$('#myCode').value;
