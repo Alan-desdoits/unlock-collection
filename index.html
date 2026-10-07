@@ -86,14 +86,6 @@ main{padding:34px 34px 70px;min-width:0}
 .card.done .sticker{transform:scale(1) rotate(8deg)}
 .card.done .cover img,.card.done .ph{filter:saturate(.5) brightness(.9)}
 .card.done .cover::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,rgba(34,160,107,.18) 0 10px,transparent 10px 20px);pointer-events:none}
-.imgtools{position:absolute;top:8px;left:8px;display:flex;gap:6px;z-index:2;opacity:0;transform:translateY(-4px);transition:all .2s}
-.card:hover .imgtools,.card:focus-within .imgtools{opacity:1;transform:none}
-@media (hover:none){.imgtools{opacity:.95;transform:none}}
-.imgtools button{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0;background:#fff;border:2px solid var(--ink);color:var(--ink);transition:transform .15s,background .15s}
-.imgtools button:hover{background:var(--yellow);transform:scale(1.1)}
-.imgtools button.rm:hover{background:var(--accent);color:#fff}
-.imgtools svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.imgtools .rm{display:none}.card.hasimg .imgtools .rm{display:grid}
 .info{padding-top:12px}
 .info b{display:block;font-size:1.05rem;font-weight:700;line-height:1.2;letter-spacing:-.01em}
 .info div{display:flex;align-items:center;gap:8px;margin-top:6px;font-family:var(--m);font-size:.75rem;color:var(--muted)}
@@ -180,8 +172,7 @@ dialog::backdrop{background:rgba(31,27,46,.55);backdrop-filter:blur(2px)}
   <footer>
     Ta progression est enregistrée automatiquement dans ce navigateur (localStorage). Fichier indépendant : aucune connexion, aucun compte.
     <details class="help"><summary>🖼️ Utiliser mes propres images de boîtes</summary>
-      <p><b>Méthode 1 – une par une :</b> passe la souris sur une carte (ou touche-la sur mobile) et clique sur l’icône appareil photo, puis choisis ton image. Elle est réduite et enregistrée dans ce navigateur (✕ pour la retirer).</p>
-      <p><b>Méthode 2 – en lot :</b> crée un dossier <code>images</code> à côté de ce fichier .html et mets-y tes images (jpg, jfif, png, webp…) nommées avec le numéro d’identifiant affiché sous chaque carte, par ex. <code>images/002.jpg</code> (le titre en minuscules, comme <code>ragnarok.jpg</code>, marche aussi). Elles s’affichent automatiquement dès l’ouverture de la page. L’image choisie par bouton prime sur celle du dossier.</p>
+      <p>Crée un dossier <code>images</code> à côté de ce fichier .html et mets-y tes images (jpg, jfif, png, webp…) nommées avec le numéro d’identifiant affiché sous chaque carte, par ex. <code>images/002.jpg</code> (le titre en minuscules, comme <code>ragnarok.jpg</code>, marche aussi). Elles s’affichent automatiquement dès l’ouverture de la page.</p>
       <p>Si tu partages le fichier, joins aussi le dossier <code>images</code>.</p>
       <div class="names" id="imgnames"></div>
     </details>
@@ -276,8 +267,6 @@ if(!storageOK) document.getElementById('warn').style.display='block';
 const $=s=>document.querySelector(s);
 const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
-const CAM='<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
-const CROSS='<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>';
 const CHECK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
 function cardHTML(a){
@@ -286,8 +275,7 @@ function cardHTML(a){
   return `<label class="card" data-id="${a.id}">
     <input type="checkbox" aria-label="Aventure terminée : ${esc(a.title)}">
     <span class="sticker">${CHECK}</span>
-    <div class="cover"><div class="ph" style="--h:${a.hue}"><span>${a.num}</span><b>${esc(a.title)}</b></div><img class="photo" alt="" hidden draggable="false">
-      <span class="imgtools"><button type="button" class="add" title="Ajouter / changer l’image" aria-label="Ajouter ou changer l’image de ${esc(a.title)}">${CAM}</button><button type="button" class="rm" title="Retirer mon image" aria-label="Retirer l’image">${CROSS}</button></span></div>
+    <div class="cover"><div class="ph" style="--h:${a.hue}"><span>${a.num}</span><b>${esc(a.title)}</b></div><img class="photo" alt="" hidden draggable="false"></div>
     <div class="info"><b>${a.title}</b><div>${lv}<span title="Identifiant (nom de l’image : ${a.num}.jpg)">#${a.num}</span></div></div></label>`;
 }
 
@@ -302,18 +290,10 @@ function build(){
 build();
 
 /* =====================================================================
-   IMAGES PERSONNELLES
-   1) image choisie via le bouton appareil photo de la carte (enregistrée dans le navigateur)
-   2) sinon, fichier du dossier « images » placé à côté de ce fichier (nom = numéro ou slug de l'aventure)
-   3) sinon, vignette colorée avec le titre
+   IMAGES DES BOÎTES
+   1) fichier du dossier « images » placé à côté de ce fichier (nom = numéro ou slug de l'aventure)
+   2) sinon, vignette colorée avec le titre
    ===================================================================== */
-const IKEY='unlock-checklist-images-v1';
-let userImgs={};
-function loadImgs(){ try{ const o=JSON.parse(localStorage.getItem(IKEY)||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
-function saveImgs(){
-  try{ localStorage.setItem(IKEY,JSON.stringify(userImgs)); return true; }
-  catch(e){ alert('Impossible d’enregistrer cette image : l’espace de stockage du navigateur est plein.\nUtilise plutôt le dossier « images » à côté du fichier (voir l’aide en bas de page).'); return false; }
-}
 const slug=t=>norm(t).replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 ALL.forEach(a=>{
   a.slug=slug(a.title);
@@ -322,9 +302,7 @@ ALL.forEach(a=>{
   a.names=[...new Set([a.num, a.slug, short, a.type==='short'?`short-${a.id.slice(2)}`:`${a.box.n}-${pos}`, a.id])];
 });
 function paintImg(a){
-  const img=a.el.querySelector('.photo'), src=userImgs[a.id]||a.folderSrc||'';
-  a.el.classList.toggle('hasimg',!!userImgs[a.id]);
-  const ph=a.el.querySelector('.ph');
+  const img=a.el.querySelector('.photo'), src=a.folderSrc||'', ph=a.el.querySelector('.ph');
   if(src){ if(img.getAttribute('src')!==src) img.src=src; img.hidden=false; ph.hidden=true; }
   else { img.hidden=true; img.removeAttribute('src'); ph.hidden=false; }
 }
@@ -337,36 +315,7 @@ function tryFolder(a){
     t.onerror=next; t.src=url;
   })();
 }
-function shrink(file){
-  return new Promise((res,rej)=>{
-    const u=URL.createObjectURL(file), im=new Image();
-    im.onload=()=>{
-      const M=640, k=Math.min(1,M/Math.max(im.naturalWidth,im.naturalHeight));
-      const c=document.createElement('canvas'); c.width=Math.round(im.naturalWidth*k); c.height=Math.round(im.naturalHeight*k);
-      const x=c.getContext('2d'); x.fillStyle='#1f1b2e'; x.fillRect(0,0,c.width,c.height); x.drawImage(im,0,0,c.width,c.height);
-      URL.revokeObjectURL(u); res(c.toDataURL('image/jpeg',.85));
-    };
-    im.onerror=()=>{ URL.revokeObjectURL(u); rej(); };
-    im.src=u;
-  });
-}
-const picker=document.createElement('input'); picker.type='file'; picker.accept='image/*,.jfif'; picker.hidden=true; document.body.appendChild(picker);
-let pickTarget=null;
-picker.addEventListener('change',async()=>{
-  const f=picker.files[0], a=pickTarget; picker.value=''; if(!f||!a) return;
-  try{ const d=await shrink(f); const old=userImgs[a.id]; userImgs[a.id]=d; if(saveImgs()) paintImg(a); else { if(old) userImgs[a.id]=old; else delete userImgs[a.id]; } }
-  catch(e){ alert('Ce fichier n’a pas pu être lu comme une image.'); }
-});
-document.addEventListener('click',e=>{
-  const b=e.target.closest&&e.target.closest('.imgtools button'); if(!b) return;
-  e.preventDefault(); e.stopPropagation();
-  const a=ALL.find(x=>x.id===b.closest('.card').dataset.id);
-  if(b.classList.contains('rm')){ delete userImgs[a.id]; saveImgs(); paintImg(a); }
-  else { pickTarget=a; picker.click(); }
-},true);
-userImgs=loadImgs();
 ALL.forEach(a=>{ paintImg(a); tryFolder(a); });
-window.addEventListener('storage',e=>{ if(e.key===IKEY){ userImgs=loadImgs(); ALL.forEach(paintImg); } });
 $('#imgnames').innerHTML=ALL.map(a=>`<div><code>${a.num}</code> <span style="opacity:.6">— ${a.title}</span></div>`).join('');
 
 /* =====================================================================
